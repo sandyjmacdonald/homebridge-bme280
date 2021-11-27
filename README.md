@@ -1,7 +1,5 @@
 # homebridge-bme280
 
-[![NPM Downloads](https://img.shields.io/npm/dm/homebridge-bme280.svg?style=flat)](https://npmjs.org/package/homebridge-bme280)
-
 [Bosch BME280](https://www.bosch-sensortec.com/bst/products/all_products/bme280)
 temperature/humidity/barometric pressure sensor service plugin for [Homebridge](https://github.com/nfarina/homebridge).
 
@@ -21,7 +19,7 @@ Detailed build instructions are available here. https://www.instructables.com/id
 
 ## Installation
 1.	Install Homebridge using `npm install -g homebridge`
-2.	Install this plugin `npm install -g homebridge-bme280`
+2.	Install this plugin `npm install -g @sandyjmacdonald/homebridge-bme280`
 3.	Update your configuration file - see below for an example
 
 Connect the BME280 chip to the I2C bus
@@ -31,6 +29,7 @@ Connect the BME280 chip to the I2C bus
 * `name`: descriptive name
 * `name_temperature` (optional): descriptive name for the temperature sensor
 * `name_humidity` (optional): descriptive name for the humidity sensor
+* `temp_offset` (optional): offsets the temperature (°C) by this amount (default 0) and corrects humidity
 * `refresh`: Optional, time interval for refreshing data in seconds, defaults to 60 seconds.
 * `storage`: Optional, storage of chart graphing data for history graphing, either fs or googleDrive, defaults to fs
 * `options`: options for [bme280-sensor](https://www.npmjs.com/package/bme280-sensor)
@@ -107,6 +106,7 @@ e. Copy the code you're given, paste it into the command-line prompt, and press 
 * RXSeger - Author and creator of the plugin
 * NorthernMan54 - Barometric Pressure and Device Polling
 * simont77 - History Service
+* sandyjmacdonald - temperature and humidity correction
 
 ## License
 

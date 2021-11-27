@@ -27,6 +27,7 @@ class BME280Plugin {
     this.name_temperature = config.name_temperature || this.name;
     this.name_humidity = config.name_humidity || this.name;
     this.refresh = config['refresh'] || 60; // Update every minute
+    this.temp_offset = parseFloat(config['temp_offset']) || 0;
     this.options = config.options || {};
     this.storage = config['storage'] || "fs";
     this.spreadsheetId = config['spreadsheetId'];
@@ -98,26 +99,30 @@ class BME280Plugin {
         .then(data => {
           this.log(`data(temp) = ${JSON.stringify(data, null, 2)}`);
 
+          corr_data = correctTempHumid(data.temperature_C, data.humidity, this.temp_offset);
+          corr_temp = corr_data[0];
+          corr_humid = corr_data[1];
+
           this.loggingService.addEntry({
             time: moment().unix(),
-            temp: roundInt(data.temperature_C),
+            temp: roundInt(corr_temp),
             pressure: roundInt(data.pressure_hPa),
-            humidity: roundInt(data.humidity)
+            humidity: roundInt(corr_humid)
           });
 
           if (this.spreadsheetId) {
             this.log_event_counter = this.log_event_counter + 1;
             if (this.log_event_counter > 59) {
-              this.logger.storeBME(this.name, 0, roundInt(data.temperature_C), roundInt(data.humidity), roundInt(data.pressure_hPa));
+              this.logger.storeBME(this.name, 0, roundInt(corr_temp), roundInt(corr_humid), roundInt(data.pressure_hPa));
               this.log_event_counter = 0;
             }
           }
           this.temperatureService
-            .setCharacteristic(Characteristic.CurrentTemperature, roundInt(data.temperature_C));
+            .setCharacteristic(Characteristic.CurrentTemperature, roundInt(corr_temp));
           this.temperatureService
             .setCharacteristic(CustomCharacteristic.AtmosphericPressureLevel, roundInt(data.pressure_hPa));
           this.humidityService
-            .setCharacteristic(Characteristic.CurrentRelativeHumidity, roundInt(data.humidity));
+            .setCharacteristic(Characteristic.CurrentRelativeHumidity, roundInt(corr_humid));
 
         })
         .catch(err => {
@@ -140,4 +145,12 @@ class BME280Plugin {
 
 function roundInt(string) {
   return Math.round(parseFloat(string) * 10) / 10;
+}
+
+function correctTempHumid(temp, humid, offset) {
+  corr_temp = temp + offset;
+  dewpoint = temp - ((100 - humid) / 5);
+  corr_humid = 100 - (5 * (corr_temp - dewpoint)) - 20;
+  corr_humid = Math.min(100, Math.max(0, corr_humid));
+  return [corr_temp, corr_humid];
 }
