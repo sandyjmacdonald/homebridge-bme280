@@ -34,5 +34,6 @@
     "mcuiot-logger": ">0.0.7",
     "moment": ">2.18.1",
     "fakegato-history": ">0.4.0"
-  }
+  },
+  "private": true
 }
