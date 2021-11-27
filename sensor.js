@@ -10,6 +10,7 @@ var hostname = os.hostname();
 let Service, Characteristic;
 var CustomCharacteristic;
 var FakeGatoHistoryService;
+let corr_temp, corr_humid, corr_data, dewpoint;
 
 module.exports = (homebridge) => {
   Service = homebridge.hap.Service;
@@ -97,32 +98,32 @@ class BME280Plugin {
     if (this.sensor) {
       this.sensor.readSensorData()
         .then(data => {
-          this.log(`data(temp) = ${JSON.stringify(data, null, 2)}`);
-
           corr_data = correctTempHumid(data.temperature_C, data.humidity, this.temp_offset);
-          corr_temp = corr_data[0];
-          corr_humid = corr_data[1];
+          data.temperature_C = corr_data[0];
+          data.humidity = corr_data[1];
+
+          this.log(`data(temp) = ${JSON.stringify(data, null, 2)}`);
 
           this.loggingService.addEntry({
             time: moment().unix(),
-            temp: roundInt(corr_temp),
+            temp: roundInt(data.temperature_C),
             pressure: roundInt(data.pressure_hPa),
-            humidity: roundInt(corr_humid)
+            humidity: roundInt(data.humidity)
           });
 
           if (this.spreadsheetId) {
             this.log_event_counter = this.log_event_counter + 1;
             if (this.log_event_counter > 59) {
-              this.logger.storeBME(this.name, 0, roundInt(corr_temp), roundInt(corr_humid), roundInt(data.pressure_hPa));
+              this.logger.storeBME(this.name, 0, roundInt(data.temperature_C), roundInt(data.humidity), roundInt(data.pressure_hPa));
               this.log_event_counter = 0;
             }
           }
           this.temperatureService
-            .setCharacteristic(Characteristic.CurrentTemperature, roundInt(corr_temp));
+            .setCharacteristic(Characteristic.CurrentTemperature, roundInt(data.temperature_C));
           this.temperatureService
             .setCharacteristic(CustomCharacteristic.AtmosphericPressureLevel, roundInt(data.pressure_hPa));
           this.humidityService
-            .setCharacteristic(Characteristic.CurrentRelativeHumidity, roundInt(corr_humid));
+            .setCharacteristic(Characteristic.CurrentRelativeHumidity, roundInt(data.humidity));
 
         })
         .catch(err => {

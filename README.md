@@ -6,6 +6,7 @@ temperature/humidity/barometric pressure sensor service plugin for [Homebridge](
 ![BME-280](images/IMG_0523.jpg)
 
 * Display of temperature, humidity and Barometric Pressure from a BME280 connected to a RaspberryPI.
+* Allows temperature offset (and automatic humidity correction). This is useful when using a BME280 that is affected by heat radiated from the Raspberry Pi's CPU.
 * Archives results every hour to a google spreadsheet
 * Support the graphing feature of the Eve app for trends
 
@@ -13,7 +14,7 @@ Uses [bme280-sensor](https://www.npmjs.com/package/bme280-sensor)
 
 # Build Instructions
 
-![RPI BME-280](images/IMG_0585.jpg)
+![RPI BME-280](images/IMG_0585.JPG)
 
 Detailed build instructions are available here. https://www.instructables.com/id/Connect-Your-RaspberryPI-to-the-BME280-Temperature/
 
